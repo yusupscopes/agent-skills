@@ -203,6 +203,27 @@ Installed skills show up in the TUI slash menu, e.g. `/spec-driven-development`.
 </details>
 
 <details>
+<summary><b>Oh My Pi (omp)</b></summary>
+
+Install as a native omp plugin. omp reads `.omp-plugin/marketplace.json` directly, and the same root `skills/` directory serves every other tool:
+
+```
+/marketplace add addyosmani/agent-skills
+/marketplace install agent-skills@addy-agent-skills
+```
+
+Or from your shell:
+
+```bash
+omp plugin marketplace add addyosmani/agent-skills
+omp plugin install agent-skills@addy-agent-skills
+```
+
+Skills, the nine slash commands, and the four personas all ship. Working inside a clone needs no install at all — `.agents/skills` puts them in omp's canonical native location. See [docs/omp-setup.md](docs/omp-setup.md).
+
+</details>
+
+<details>
 <summary><b>Other Agents</b></summary>
 
 Skills are plain Markdown - they work with any agent that accepts system prompts or instruction files. See [docs/getting-started.md](docs/getting-started.md).
