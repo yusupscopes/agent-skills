@@ -7,4 +7,4 @@ node_modules/
 .claude/sdd-cache/
 evals/results/
 __pycache__/
-.omp/
+.omp/plugins/

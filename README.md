@@ -219,7 +219,7 @@ omp plugin marketplace add addyosmani/agent-skills
 omp plugin install agent-skills@addy-agent-skills
 ```
 
-Skills, the nine slash commands, and the four personas all ship. Cloning the repo needs no install at all — `.agents/skills` is omp's canonical native location. See [docs/omp-setup.md](docs/omp-setup.md).
+Skills, the nine slash commands, and the four personas all ship. Working inside a clone needs no install at all — `.agents/skills` puts them in omp's canonical native location. See [docs/omp-setup.md](docs/omp-setup.md).
 
 </details>
 

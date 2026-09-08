@@ -35,7 +35,7 @@ Installs default to **user** scope (`~/.omp/plugins/`), which makes the skills a
 omp plugin install agent-skills@addy-agent-skills --scope project
 ```
 
-Project scope writes to `<project>/.omp/`. That directory is install state, not source — this repo's `.gitignore` excludes it, and you should do the same in yours. An enabled project install shadows an enabled user install of the same plugin.
+Project scope writes to `<project>/.omp/plugins/`. That is install state, not source — this repo's `.gitignore` excludes it, and you should do the same in yours. Ignore `.omp/plugins/` specifically rather than all of `.omp/`: the wider pattern would also swallow a `.omp/skills/` directory, which is omp's highest-precedence skill provider and something you may well want in version control. An enabled project install shadows an enabled user install of the same plugin.
 
 > **`--dry-run` is not a preview.** On omp 18.1.14, `omp plugin install … --dry-run` reports `✔ Installed` and performs a real user-scope install. If you use it, uninstall afterwards:
 > ```bash
@@ -73,7 +73,7 @@ Use `--scope project` for a project-scoped install. If the plugin exists in both
 - **`.omp-plugin/marketplace.json`** — the catalog omp reads. omp prefers `.omp-plugin/marketplace.json` and falls back to `.claude-plugin/marketplace.json`, so this repo ships both: omp reads its own copy, Claude Code reads the Claude one.
 - **`.omp-plugin/plugin.json`** — the plugin manifest. omp reads `.omp-plugin/plugin.json` first, then `.claude-plugin/plugin.json`.
 - **`skills/<name>/SKILL.md`** — unchanged. omp shares the `name` + `description` frontmatter format with Claude Code and Codex, so one file serves every platform.
-- **`.agents/skills`** — a symlink to `skills/`. omp's `agents` provider (`.agent[s]/skills`) is its canonical native project location, so cloning this repo and running omp inside it gives you every skill with no install at all.
+- **`.agents/skills`** — a symlink to `skills/`. Working inside a clone of this repo gives you every skill with no install at all. omp would in fact already find them through the older `.opencode/skills` symlink, but `.agents/skills` is its canonical native project location and is discovered at a higher precedence (`agents`, 70, versus `opencode`, 55). It also has its own `enableAgentsProject` toggle, so it keeps working when the foreign-provider opt-ins are turned off.
 
 ### Two manifest details that look redundant but aren't
 
@@ -106,7 +106,11 @@ omp plugin doctor
 
 **`omp plugin features agent-skills` reports "not found".** Expected. `features` targets plugins that ship extension modules via `package.json` `omp.extensions`. This plugin is content only — skills, commands, and personas — so it exposes no toggleable features. Use `omp plugin list` to confirm it installed.
 
-**A skill name collides with one you already have.** omp dedups by skill name across providers, highest-precedence first: `native` (`.omp`) > `omp-plugins` > `claude` > `claude-plugins`/`agents`/`codex` > `opencode` > `github`. Identical files reached by different paths are de-duplicated by `realpath`, so the `.agents/skills` symlink does not collide with the same skills installed as a plugin. To exclude specific skills, use `ignoredSkills`, or filter at launch with `omp --skills=<globs>`.
+**A skill name collides with one you already have.** omp dedups by skill name across providers, highest-precedence first: `native` (`.omp`) > `omp-plugins` > `claude` > `claude-plugins`/`agents`/`codex` > `opencode` > `github`. First provider wins.
+
+That precedence is also what handles the common case of working inside a clone of this repo *and* having the plugin installed. The two copies are different files on disk — the working tree and omp's plugin cache — so they are not merged by path; the plugin's `omp-plugins` entry (90) simply outranks the clone's `agents` entry (70), and you get one copy of each skill. (omp does additionally de-duplicate by `realpath`, but that only catches distinct paths resolving to the *same* file, such as a symlink and its target within one tree.)
+
+To exclude specific skills, use `ignoredSkills`, or filter at launch with `omp --skills=<globs>`.
 
 **Cloning the repo on Windows leaves `.agents/skills` as a text file.** `.agents/skills` and `.opencode/skills` are git symlinks. Enable Developer Mode or set `git config core.symlinks true` before cloning. This only affects working from a clone; installing the plugin normally is unaffected.
 
