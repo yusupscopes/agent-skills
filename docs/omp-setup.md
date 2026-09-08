@@ -83,6 +83,8 @@ Use `--scope project` for a project-scoped install. If the plugin exists in both
 
 **`agents/` needs no declaration.** It is a default location in omp's plugin tree, and this repo's root `agents/` already matches it.
 
+Both declarations are guarded by `scripts/validate-omp-manifest.js` (run it with `node scripts/validate-omp-manifest.js`), because removing either one breaks the plugin *silently* — it still installs, `omp plugin list` still shows it, and the skills or commands simply never appear. The skills check is conditional on the catalog source: change it away from `"./"` and omp's additive semantics return, so the validator stops requiring the declaration.
+
 ### Why `source: "./"`
 
 The catalog entry uses a relative `"./"` source, so the plugin resolves inside whichever repository the marketplace was added from. Adding a fork installs that fork's content; adding upstream installs upstream's. The same catalog file works in both places unchanged, which means you can verify a change against a real omp install before proposing it.
